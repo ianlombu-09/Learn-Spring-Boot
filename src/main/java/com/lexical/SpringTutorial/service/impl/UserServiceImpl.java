@@ -3,6 +3,7 @@ package com.lexical.SpringTutorial.service.impl;
 import com.lexical.SpringTutorial.UserRepository;
 import com.lexical.SpringTutorial.io.entity.UserEntity;
 import com.lexical.SpringTutorial.service.UserService;
+import com.lexical.SpringTutorial.shared.Utils;
 import com.lexical.SpringTutorial.shared.dto.UserDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    Utils utils;
+
     @Override
     public UserDto createUser(UserDto user) {
 
@@ -22,8 +26,9 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = new UserEntity();
         BeanUtils.copyProperties(user, userEntity);
 
+        String publicUserId = utils.generateUserId(30);
         userEntity.setEncryptedPassword("test");
-        userEntity.setUserId("testUserId");
+        userEntity.setUserId(publicUserId);
 
         UserEntity storedUserDetails = userRepository.save(userEntity);
 
