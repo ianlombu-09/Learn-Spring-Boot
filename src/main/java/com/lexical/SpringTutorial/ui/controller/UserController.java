@@ -9,15 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("users")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
     UserService userService;
 
-    @GetMapping
-    public String getUser() {
-        return "Get User Was Called";
+    @GetMapping(path="/{id}")
+    public UserRest getUser(@PathVariable String id) {
+        UserRest returnValue = new UserRest();
+
+        UserDto userDto = userService.getUserById(id);
+        BeanUtils.copyProperties(userDto, returnValue);
+
+        return returnValue;
     }
 
     @PostMapping

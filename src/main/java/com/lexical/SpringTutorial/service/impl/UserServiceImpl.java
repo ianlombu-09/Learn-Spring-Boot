@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
         UserDto returnValue = new UserDto();
         BeanUtils.copyProperties(userEntity, returnValue);
 
-        return returnValue; 
+        return returnValue;
     }
 
     @Override
@@ -67,5 +67,20 @@ public class UserServiceImpl implements UserService {
         if (userEntity == null) throw new UsernameNotFoundException(email);
 
         return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+    }
+
+    @Override
+    public UserDto getUserById(String userId) {
+        UserDto returnValue = new UserDto();
+
+        UserEntity userEntity = userRepository.findByUserId(userId);
+
+        if(userEntity == null)
+            throw new UsernameNotFoundException(userId);
+
+
+        BeanUtils.copyProperties(userEntity, returnValue);
+
+        return returnValue;
     }
 }
