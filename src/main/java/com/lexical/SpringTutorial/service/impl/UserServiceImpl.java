@@ -1,10 +1,13 @@
 package com.lexical.SpringTutorial.service.impl;
 
 import com.lexical.SpringTutorial.UserRepository;
+import com.lexical.SpringTutorial.exceptions.UserServiceException;
 import com.lexical.SpringTutorial.io.entity.UserEntity;
 import com.lexical.SpringTutorial.service.UserService;
 import com.lexical.SpringTutorial.shared.Utils;
 import com.lexical.SpringTutorial.shared.dto.UserDto;
+import com.lexical.SpringTutorial.ui.model.response.ErrorMessages;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -82,5 +85,35 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(userEntity, returnValue);
 
         return returnValue;
+    }
+
+    @Override
+    public UserDto updateUser(String userId, UserDto user) {
+        UserDto returnValue = new UserDto();
+
+        UserEntity userEntity =  userRepository.findByUserId(userId);
+
+        if (userEntity == null)
+            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastName(user.getLastName());
+        userEntity.setEmail(user.getEmail());
+
+        UserEntity updateUserDetails = userRepository.save(userEntity);
+
+        returnValue = new ModelMapper().map(updateUserDetails, UserDto.class);
+
+        return returnValue;
+    }
+
+    @Override
+    public void deleteUser(String userId) {
+        UserEntity userEntity = userRepository.findByUserId(userId);
+
+        if (userEntity == null)
+            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+
+        userRepository.delete(userEntity);
     }
 }
