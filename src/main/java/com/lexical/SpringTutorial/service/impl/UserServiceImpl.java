@@ -5,6 +5,7 @@ import com.lexical.SpringTutorial.exceptions.UserServiceException;
 import com.lexical.SpringTutorial.io.entity.UserEntity;
 import com.lexical.SpringTutorial.service.UserService;
 import com.lexical.SpringTutorial.shared.Utils;
+import com.lexical.SpringTutorial.shared.dto.AddressDTO;
 import com.lexical.SpringTutorial.shared.dto.UserDto;
 import com.lexical.SpringTutorial.ui.model.response.ErrorMessages;
 import org.modelmapper.ModelMapper;
@@ -39,8 +40,16 @@ public class UserServiceImpl implements UserService {
 
         if (userRepository.findByEmail(user.getEmail()) != null) throw new RuntimeException("Record Already Exist");
 
-        UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(user, userEntity);
+        for (int i=0; i < user.getAddresses().size(); i++) {
+            AddressDTO address = user.getAddresses().get(i);
+            address.setUserDetails(user);
+            address.setAddressId(utils.generateAddressId(30));
+            user.getAddresses().set(i, address);
+        }
+
+        // BeanUtils.copyProperties(user, userEntity);
+        ModelMapper modelMapper = new ModelMapper();
+        UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 
         String publicUserId = utils.generateUserId(30);
         userEntity.setUserId(publicUserId);
@@ -49,8 +58,8 @@ public class UserServiceImpl implements UserService {
 
         UserEntity storedUserDetails = userRepository.save(userEntity);
 
-        UserDto returnValue = new UserDto();
-        BeanUtils.copyProperties(storedUserDetails, returnValue);
+        // BeanUtils.copyProperties(storedUserDetails, returnValue);
+        UserDto returnValue = modelMapper.map(storedUserDetails, UserDto.class);
 
         return returnValue;
     }
